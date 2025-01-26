@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WAV Browser</title>
+  <link rel="stylesheet" href="main.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📻</text></svg>">
+
+  <script src="main.js" type="module"></script>
+</head>
+
+<body x-data="app">
+
+  <main class="column">
+    <div id="wavContainer" x-ref="wavContainer">
+      <canvas width="1" height="200" x-ref="wavCanvas"></canvas>
+      <canvas width="1" height="200" x-ref="overlayCanvas"></canvas>
+    </div>
+
+    <div id="toolbar">
+      <button id="browse" @click="openDir">
+        <i class="fa-solid fa-fw fa-folder-open"></i>
+      </button>
+      <button id="loop" x-show="selectedFile" @click="toggleLoop">
+        <i class="fa-solid fa-fw" :class="loop ? 'fa-repeat' : 'fa-arrow-right'"></i>
+      </button>
+      <button id="play" x-show="selectedFile" @click="playStop(false)">
+        <i class="fa-solid fa-fw" :class="playing ? 'fa-stop' : 'fa-play'"></i>
+      </button>
+
+      <div x-show="selectedFileInfo.channels > 0">
+        <span x-text="`Channels: ${selectedFileInfo.channels}`" class="pill"></span>
+        <span x-text="`Sample Rate: ${selectedFileInfo.sampleRate}Hz`" class="pill"></span>
+        <span x-text="`Duration: ${selectedFileInfo.duration}s`" class="pill"></span>
+        <span x-text="`Current: ${currentTime || '0'}s`" class="pill" style="width: 150px"></span>
+      </div>
+    </div>
+
+    <ul id="directoryListing" x-show="fileList" class="grow">
+      <template x-for="file in fileList">
+        <li x-text="file.dispName" @click="selectFile(file)"
+          :class="selectedFile?.dispName == file.dispName ? 'selected' : ''">
+        </li>
+      </template>
+    </ul>
+
+    <dialog id="loadingDialog" x-ref="loadingDialog">
+      <span class="spinner">&nbsp;</span> Scanning directory...
+      <br>
+      <button @click="cancel = true; $refs.loadingDialog.close()">Cancel</button>
+    </dialog>
+  </main>
+
+</body>
+
+</html>
