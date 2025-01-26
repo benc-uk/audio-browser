@@ -1,0 +1,4 @@
+// Gitignore for Vite js project
+node_modules
+dist
+.vite
