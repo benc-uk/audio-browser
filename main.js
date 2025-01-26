@@ -42,7 +42,7 @@ Alpine.data('app', () => ({
   cancel: false,
   currentTime: 0,
 
-  async init() {
+  init() {
     overlay = this.$refs.overlayCanvas
     waveform = this.$refs.wavCanvas
     wavContainer = this.$refs.wavContainer
@@ -50,12 +50,13 @@ Alpine.data('app', () => ({
     wavCtx = waveform.getContext('2d')
 
     addEventListener('resize', resizeCanvas)
-
-    // use mutation observer to detect when the container size changes
-    const observer = new ResizeObserver(resizeCanvas)
-    observer.observe(wavContainer)
-
     resizeCanvas()
+
+    new MutationObserver(() => {
+      resizeCanvas()
+      console.log('Container size changed')
+    }).observe(wavContainer, { attributeFilter: ['style'] })
+
     overlayText('Open a directory to start')
   },
 
@@ -110,6 +111,16 @@ Alpine.data('app', () => ({
 
       if (entry.kind === 'file' && isAudioFile(entry)) {
         const resolvedNames = await topDir.resolve(entry)
+
+        for (let i = 0; i < resolvedNames.length; i++) {
+          if (i < resolvedNames.length - 1) {
+            resolvedNames[i] = '📁 ' + resolvedNames[i]
+          }
+
+          if (i === resolvedNames.length - 1) {
+            resolvedNames[i] = '🎵 ' + resolvedNames[i]
+          }
+        }
 
         entry.dispName = resolvedNames.join(' / ')
         entry.dispName = stripExtension(entry.dispName)
@@ -242,7 +253,7 @@ Alpine.data('app', () => ({
       if (x + textW + 5 > overlay.width) {
         offset = -5 - textW
       }
-      overlayCtx.fillText(`${currentTime.toFixed(2)}s`, x + offset, 20)
+      overlayCtx.fillText(`${currentTime.toFixed(2)}s`, x + offset, 12)
 
       // Loop the draw function
       requestAnimationFrame(this.drawPlayingLine.bind(this))
@@ -278,7 +289,6 @@ function resizeCanvas() {
   overlay.height = rect.height
 
   drawWaveform()
-  drawPlayingLine()
 }
 
 function drawWaveform() {
@@ -289,8 +299,18 @@ function drawWaveform() {
   const width = waveform.width
   const height = waveform.height
 
-  wavCtx.strokeStyle = 'rgba(30, 211, 30, 0.3)'
+  const gradient = wavCtx.createLinearGradient(0, 0, 0, height)
+
+  gradient.addColorStop(0.0, 'rgb(6, 35, 121)')
+  gradient.addColorStop(0.3, 'rgb(9, 105, 208)')
+  gradient.addColorStop(0.5, 'rgb(200, 255, 255)')
+  gradient.addColorStop(0.7, 'rgb(9, 105, 208)')
+  gradient.addColorStop(1.0, 'rgb(6, 35, 121)')
+
+  wavCtx.strokeStyle = gradient
+  wavCtx.fillStyle = gradient
   wavCtx.lineWidth = 2.0
+  wavCtx.clearRect(0, 0, width, height)
 
   const channelDataL = audioBuffer.getChannelData(0)
   let channelDataR = null
@@ -299,12 +319,12 @@ function drawWaveform() {
   }
 
   // Magic formula to not draw all the samples but also look good
-  let scale = Math.floor((channelDataL.length / width) * 0.05)
-  if (scale < 1) {
-    scale = 1
+  let sampleStep = Math.floor((channelDataL.length / width) * 0.05)
+  if (sampleStep < 1) {
+    sampleStep = 1
   }
 
-  for (let i = 0; i < channelDataL.length; i += scale) {
+  for (let i = 0; i < channelDataL.length; i += sampleStep) {
     const x = (i / channelDataL.length) * width
 
     let sampleVal = 0
@@ -328,9 +348,10 @@ function drawWaveform() {
 function overlayText(message) {
   overlayCtx.clearRect(0, 0, overlay.width, overlay.height)
   wavCtx.clearRect(0, 0, waveform.width, waveform.height)
-  overlayCtx.font = '24px Arial'
+
+  overlayCtx.font = "24px 'Arial', sans-serif"
   overlayCtx.textAlign = 'center'
   overlayCtx.textBaseline = 'middle'
-  overlayCtx.fillStyle = 'rgba(255, 255, 255, 0.8)'
+  overlayCtx.fillStyle = 'rgba(255, 255, 255, 0.7)'
   overlayCtx.fillText(message, overlay.width / 2, overlay.height / 2)
 }
