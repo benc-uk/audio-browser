@@ -75,7 +75,7 @@ dialog {
   margin: 5px;
   background-color: #cdcdcd;
   display: inline-block;
-  cursor: de;
+  cursor: default;
 }
 
 #toolbar {
