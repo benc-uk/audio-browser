@@ -16,6 +16,9 @@ let overlay
 /** @type {HTMLCanvasElement | null}*/
 let waveform
 
+/** @type {HTMLDivElement | null}*/
+let wavContainer
+
 /** @type {AudioBufferSourceNode | null} */
 let source = null
 
@@ -42,10 +45,16 @@ Alpine.data('app', () => ({
   async init() {
     overlay = this.$refs.overlayCanvas
     waveform = this.$refs.wavCanvas
+    wavContainer = this.$refs.wavContainer
     overlayCtx = overlay.getContext('2d')
     wavCtx = waveform.getContext('2d')
 
     addEventListener('resize', resizeCanvas)
+
+    // use mutation observer to detect when the container size changes
+    const observer = new ResizeObserver(resizeCanvas)
+    observer.observe(wavContainer)
+
     resizeCanvas()
     overlayText('Open a directory to start')
   },
@@ -260,10 +269,16 @@ function resizeCanvas() {
   if (!waveform || !overlay) {
     return
   }
-  const rect = document.getElementById('wavContainer').getBoundingClientRect()
+
+  const rect = wavContainer.getBoundingClientRect()
+
   waveform.width = rect.width
   overlay.width = rect.width
+  waveform.height = rect.height
+  overlay.height = rect.height
+
   drawWaveform()
+  drawPlayingLine()
 }
 
 function drawWaveform() {
@@ -273,7 +288,6 @@ function drawWaveform() {
 
   const width = waveform.width
   const height = waveform.height
-  wavCtx.clearRect(0, 0, width, height)
 
   wavCtx.strokeStyle = 'rgba(30, 211, 30, 0.3)'
   wavCtx.lineWidth = 2.0

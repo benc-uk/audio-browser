@@ -98,15 +98,11 @@ dialog {
   cursor: pointer;
   color: #242424;
   padding: 4px;
+  padding-left: 10px;
 }
 
 #fileList li:nth-child(odd) {
   background-color: #cacaca;
-}
-
-#fileList li::before {
-  content: '📄';
-  margin-right: 10px;
 }
 
 #fileList li:hover {
@@ -120,7 +116,6 @@ dialog {
 }
 
 #wavContainer {
-  margin: 0 auto;
   padding: 0;
   margin: 0px 10px;
   height: 200px;
@@ -129,7 +124,6 @@ dialog {
   position: relative;
   resize: vertical;
   overflow-x: auto;
-  flex-grow: 0;
 }
 
 canvas[x-ref='overlayCanvas'] {
