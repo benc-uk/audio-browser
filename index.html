@@ -27,32 +27,33 @@
   <main class="column">
     <div id="wavContainer" x-ref="wavContainer">
       <canvas width="1" height="200" x-ref="wavCanvas"></canvas>
-      <canvas width="1" height="200" x-ref="overlayCanvas"></canvas>
+      <canvas width="1" height="200" x-ref="overlayCanvas" @click="wavClick"></canvas>
     </div>
 
     <div id="toolbar">
       <button id="browse" @click="openDir">
         <i class="fa-solid fa-fw fa-folder-open"></i>
       </button>
-      <button id="loop" x-show="selectedFile" @click="toggleLoop">
-        <i class="fa-solid fa-fw" :class="loop ? 'fa-repeat' : 'fa-arrow-right'"></i>
+      <button id="loop" x-show="selectedFile" @click="toggleLoop" :class="loop ? 'active' : 'inactive'">
+        <i class="fa-solid fa-fw fa-repeat"></i>
       </button>
-      <button id="play" x-show="selectedFile" @click="playStop(false)">
-        <i class="fa-solid fa-fw" :class="playing ? 'fa-stop' : 'fa-play'"></i>
+      <button id="play" x-show="selectedFile" @click="playPause()">
+        <i class="fa-solid fa-fw" :class="playing ? 'fa-pause' : 'fa-play'"></i>
+      </button>
+      <button id="play" x-show="selectedFile" @click="stop()">
+        <i class="fa-solid fa-fw fa-stop"></i>
       </button>
 
       <div x-show="selectedFileInfo.channels > 0">
         <span x-text="`Channels: ${selectedFileInfo.channels}`" class="pill"></span>
-        <span x-text="`Sample Rate: ${selectedFileInfo.sampleRate}Hz`" class="pill"></span>
+        <span x-text="`Type: ${selectedFileInfo.type}`" class="pill"></span>
         <span x-text="`Duration: ${selectedFileInfo.duration}s`" class="pill"></span>
-        <span x-text="`Current: ${currentTime || '0'}s`" class="pill" style="width: 150px"></span>
       </div>
     </div>
 
-    <ul id="directoryListing" x-show="fileList" class="grow">
+    <ul id="fileList" x-show="fileList.length > 0">
       <template x-for="file in fileList">
-        <li x-text="file.dispName" @click="selectFile(file)"
-          :class="selectedFile?.dispName == file.dispName ? 'selected' : ''">
+        <li x-text="file.dispName" @click="selectFile(file)" :class="selectedFile?.name == file.name ? 'selected' : ''">
         </li>
       </template>
     </ul>

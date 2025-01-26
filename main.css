@@ -8,15 +8,19 @@ body {
   background-color: #979797;
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
-  height: 99vh;
-  max-height: 99vh;
+button {
+  padding: 8px;
+  margin: 6px;
+  border: none;
+  background-color: #206298;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 17px;
 }
 
-.grow {
-  flex-grow: 1;
+button:hover {
+  background-color: #2c74af;
 }
 
 dialog {
@@ -25,6 +29,14 @@ dialog {
   border-radius: 6px;
   text-align: center;
   font-size: 22px;
+  box-shadow: 7px 7px 10px -4px rgba(0, 0, 0, 0.45);
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  height: 99vh;
+  max-height: 99vh;
 }
 
 /* rotate animation */
@@ -49,27 +61,20 @@ dialog {
   }
 }
 
+.active {
+  background-color: rgb(29, 139, 15);
+}
+
+.inactive {
+  background-color: #494949;
+}
+
 .pill {
   border-radius: 99px;
   padding: 5px 12px;
   margin: 5px;
   background-color: #f0f0f0;
   display: inline-block;
-}
-
-button {
-  padding: 8px;
-  margin: 6px;
-  border: none;
-  background-color: #206298;
-  color: white;
-  cursor: pointer;
-  border-radius: 6px;
-  font-size: 17px;
-}
-
-button:hover {
-  background-color: #2c74af;
 }
 
 #toolbar {
@@ -79,7 +84,7 @@ button:hover {
   margin: 10px 10px;
 }
 
-#directoryListing {
+#fileList {
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -89,22 +94,22 @@ button:hover {
   overflow-y: auto;
 }
 
-#directoryListing li {
+#fileList li {
   cursor: pointer;
   color: #242424;
   padding: 4px;
 }
 
-#directoryListing li:nth-child(odd) {
+#fileList li:nth-child(odd) {
   background-color: #cacaca;
 }
 
-#directoryListing li::before {
+#fileList li::before {
   content: '📄';
   margin-right: 10px;
 }
 
-#directoryListing li:hover {
+#fileList li:hover {
   background-color: #7798b3;
   color: white;
 }
@@ -140,6 +145,7 @@ canvas[x-ref='overlayCanvas'] {
 canvas[x-ref='wavCanvas'] {
   position: absolute;
   background-color: black;
+  z-index: 0;
   top: 0;
   left: 0;
   width: 100%;
