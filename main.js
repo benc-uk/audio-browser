@@ -22,6 +22,9 @@ let wavContainer
 /** @type {AudioBufferSourceNode | null} */
 let source = null
 
+/** @type {GainNode | null} */
+let gainNode = null
+
 /** @type {AudioBuffer | null} */
 let audioBuffer = null
 
@@ -30,17 +33,22 @@ let startTime = 0
 Alpine.data('app', () => ({
   /** @type {FileSystemHandle | null} */
   selectedFile: null,
+  /** @type {FileSystemHandle[]} */
+  fileList: [],
+
   selectedFileInfo: {
     channels: 0,
     type: 0,
     duration: 0,
   },
-  /** @type {FileSystemHandle[]} */
-  fileList: [],
+
   playing: false,
   loop: false,
   cancel: false,
+  autoPlay: true,
+  showVolume: false,
   currentTime: 0,
+  volume: 1,
 
   init() {
     overlay = this.$refs.overlayCanvas
@@ -58,6 +66,12 @@ Alpine.data('app', () => ({
     }).observe(wavContainer, { attributeFilter: ['style'] })
 
     overlayText('Open a directory to start')
+
+    this.$watch('volume', (value) => {
+      if (gainNode) {
+        gainNode.gain.value = value
+      }
+    })
   },
 
   async openDir() {
@@ -93,6 +107,15 @@ Alpine.data('app', () => ({
       })
 
       this.$refs.loadingDialog.close()
+
+      if (this.fileList.length === 0) {
+        overlayText('No audio files found in the directory!')
+        return
+      }
+
+      if (this.selectedFile === null) {
+        overlayText('Select a file from the list below')
+      }
     } catch (err) {
       console.log('User canceled directory picker')
     }
@@ -167,7 +190,10 @@ Alpine.data('app', () => ({
     }
 
     drawWaveform()
-    this.play(0)
+
+    if (this.autoPlay) {
+      this.play(0)
+    }
   },
 
   toggleLoop() {
@@ -209,16 +235,20 @@ Alpine.data('app', () => ({
     source = audioContext.createBufferSource()
     source.buffer = audioBuffer
     source.loop = this.loop
-    source.connect(audioContext.destination)
     startTime = audioContext.currentTime - offsetTime
+
+    gainNode = audioContext.createGain()
+    gainNode.gain.value = this.volume
+    source.connect(gainNode).connect(audioContext.destination)
+
     this.currentTime = offsetTime
     this.playing = true
 
     source.start(0, offsetTime)
-    this.drawPlayingLine()
+    this.updateOverlay()
   },
 
-  drawPlayingLine() {
+  updateOverlay() {
     if (source && this.playing) {
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height)
 
@@ -256,7 +286,7 @@ Alpine.data('app', () => ({
       overlayCtx.fillText(`${currentTime.toFixed(2)}s`, x + offset, 12)
 
       // Loop the draw function
-      requestAnimationFrame(this.drawPlayingLine.bind(this))
+      requestAnimationFrame(this.updateOverlay.bind(this))
     }
   },
 
@@ -300,7 +330,6 @@ function drawWaveform() {
   const height = waveform.height
 
   const gradient = wavCtx.createLinearGradient(0, 0, 0, height)
-
   gradient.addColorStop(0.0, 'rgb(6, 35, 121)')
   gradient.addColorStop(0.3, 'rgb(9, 105, 208)')
   gradient.addColorStop(0.5, 'rgb(200, 255, 255)')
@@ -309,7 +338,7 @@ function drawWaveform() {
 
   wavCtx.strokeStyle = gradient
   wavCtx.fillStyle = gradient
-  wavCtx.lineWidth = 2.0
+
   wavCtx.clearRect(0, 0, width, height)
 
   const channelDataL = audioBuffer.getChannelData(0)
@@ -323,6 +352,14 @@ function drawWaveform() {
   if (sampleStep < 1) {
     sampleStep = 1
   }
+
+  // Draw line in center
+  wavCtx.beginPath()
+  wavCtx.moveTo(0, height / 2)
+  wavCtx.lineTo(width, height / 2)
+  wavCtx.lineWidth = 0.5
+  wavCtx.stroke()
+  wavCtx.lineWidth = 0.8
 
   for (let i = 0; i < channelDataL.length; i += sampleStep) {
     const x = (i / channelDataL.length) * width

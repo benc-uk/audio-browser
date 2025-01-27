@@ -4,15 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Audio Browser</title>
-  <link rel="stylesheet" href="main.css">
+  <title>Audio File Browser</title>
+  <link rel="stylesheet" href="assets/main.css">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet">
 
@@ -20,8 +14,7 @@
     integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
+  <link rel="icon" href="assets/icon.png" type="image/png">
 
   <script src="main.js" type="module"></script>
 </head>
@@ -35,23 +28,37 @@
     </div>
 
     <div id="toolbar">
-      <button id="browse" @click="openDir">
+      <button id="browse" @click="openDir" title="Open directory">
         <i class="fa-solid fa-fw fa-folder-open"></i>
       </button>
-      <button id="loop" x-show="selectedFile" @click="toggleLoop" :class="loop ? 'active' : 'inactive'">
+
+      <button id="auto" @click="autoPlay = !autoPlay" :class="autoPlay ? 'active' : 'inactive'" title="Auto play">
+        <i class="fa-solid fa-fw fa-bolt"></i>
+      </button>
+
+      <button id="auto" @click="showVolume = !showVolume" title="Volume" :class="showVolume ? 'active' : 'inactive'">
+        <i class="fa-solid fa-fw fa-volume-high"></i>
+      </button>
+      <div id="volume" x-show="showVolume">
+        <input type="range" min="0" max="3" step="0.1" x-model="volume" @input="setVolume" title="Show/hide volume">
+      </div>
+
+      <button id="loop" x-show="selectedFile" @click="toggleLoop" :class="loop ? 'active' : 'inactive'" title="Loop">
         <i class="fa-solid fa-fw fa-repeat"></i>
       </button>
-      <button id="play" x-show="selectedFile" @click="playPause()">
+
+      <button id="play" x-show="selectedFile" @click="playPause()" title="Play/Pause">
         <i class="fa-solid fa-fw" :class="playing ? 'fa-pause' : 'fa-play'"></i>
       </button>
-      <button id="play" x-show="selectedFile" @click="stop()">
+
+      <button id="play" x-show="selectedFile" @click="stop()" title="Stop">
         <i class="fa-solid fa-fw fa-stop"></i>
       </button>
 
-      <div x-show="selectedFileInfo.channels > 0">
-        <span x-text="`Channels: ${selectedFileInfo.channels}`" class="pill"></span>
+      <div x-show="selectedFileInfo.channels > 0" class="hideMobile">
+        <span x-text="`Chan: ${selectedFileInfo.channels}`" class="pill"></span>
         <span x-text="`Type: ${selectedFileInfo.type}`" class="pill"></span>
-        <span x-text="`Duration: ${selectedFileInfo.duration}s`" class="pill"></span>
+        <span x-text="`Time: ${selectedFileInfo.duration}s`" class="pill"></span>
       </div>
     </div>
 

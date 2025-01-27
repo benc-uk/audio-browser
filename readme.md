@@ -1,7 +1,15 @@
 # Audio File Browser
 
-A web based audio file browser & explorer for previewing and finding sound files & samples.
+A web based audio file browser & explorer for easy previewing and discovery of sound files & samples.
 
-Written in vanilla JavaScript using AlpineJS
+Written in vanilla JavaScript using AlpineJS, no build/bundle step
 
-![screen shot](screen.png)
+Features:
+
+- Recursively scans directories for supported files (wav, mp3, ogg & flac)
+- Optional looped playback
+- Volume controls
+- Visualization of the waveform
+- Scrubbing and playback from any point
+
+![screen shot](assets/screen.png)

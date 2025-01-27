@@ -32,6 +32,16 @@ dialog {
   box-shadow: 7px 7px 10px -4px rgba(0, 0, 0, 0.45);
 }
 
+.hideMobile {
+  display: inherit;
+}
+
+@media screen and (max-width: 650px) {
+  .hideMobile {
+    display: none;
+  }
+}
+
 .column {
   display: flex;
   flex-direction: column;
@@ -72,7 +82,7 @@ dialog {
 .pill {
   border-radius: 99px;
   padding: 5px 12px;
-  margin: 5px;
+  margin: 3px;
   background-color: #cdcdcd;
   display: inline-block;
   cursor: default;
@@ -136,7 +146,7 @@ canvas[x-ref='overlayCanvas'] {
   left: 0;
   width: 100%;
   height: 100%;
-  cursor: text;
+  cursor: crosshair;
 }
 
 canvas[x-ref='wavCanvas'] {
